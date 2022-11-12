@@ -12,11 +12,9 @@
 /.next/
 /out/
 
-# production
-/build
-
 # misc
 .DS_Store
+*.pem
 
 # debug
 npm-debug.log*
@@ -28,3 +26,15 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# vercel
+.vercel
+
+.idea
+
+dist
+Dockerfile
+out
+
+# TypeScript cache
+*.tsbuildinfo
