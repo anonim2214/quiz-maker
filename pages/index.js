@@ -1,209 +1,103 @@
-import Head from 'next/head'
+import quiz from '../data/quiz';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export default function Home() {
-  return (
-    <div className="container">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
 
-      <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+    // While there remain elements to shuffle.
+    while (currentIndex !== 0) {
 
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
+        // Pick a remaining element.
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
 
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+    }
 
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+    return array;
+}
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+export default function Home({ randomQuiz }) {
+    const [index, setIndex] = useState(0);
+    const [wrongAnswer, setWrongAnswer] = useState(null);
+    const [rightAnswer, setRightAnswer] = useState(null);
+    const [disableButtons, setDisableButtons] = useState(false);
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+    const [rights, setRights] = useState(0);
+    const [wrongs, setWrongs] = useState(0);
 
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+    const handleClick = useCallback(() => {
+        document.removeEventListener('click', handleClick);
+        setIndex(index + 1);
+        setRightAnswer(null);
+        setWrongAnswer(null);
+        setDisableButtons(false);
+    }, [index]);
+
+    const handleAnswer = (question, answer) => {
+        setRightAnswer(question.rightAnswerIndex);
+        setDisableButtons(true);
+        if (question.rightAnswerIndex !== answer) {
+            setWrongAnswer(answer);
+            setWrongs(wrongs + 1);
+        } else {
+            setRights(rights + 1);
+        }
+
+        setTimeout(() => {
+            document.addEventListener('click', handleClick);
+        }, 0);
+    };
+
+    const current = randomQuiz[index];
+
+    return (
+        <div
+            style={{
+                width: '100vw', height: '100vh', display: 'flex',
+            }}
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className="logo" />
-        </a>
-      </footer>
+            <div
+                style={{
+                    maxWidth: 400, maxHeight: 500, margin: 'auto', flexGrow: 1,
+                }}
+            >
+                <p style={{ textAlign: 'center' }}>{`${index} / ${randomQuiz.length}`}</p>
+                <p style={{ textAlign: 'center', color: '#96be25' }}>{rights}</p>
+                <p style={{ textAlign: 'center', color: '#be4d25' }}>{wrongs}</p>
 
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
-  )
+                <p
+                    style={{
+                        textAlign: 'center', fontWeight: 700, fontSize: 30,
+                    }}
+                >
+                    {current?.word}
+                </p>
+                <p style={{ textAlign: 'center', fontSize: 20 }}>
+                    {current?.translate}
+                </p>
+                {disableButtons && <p style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: current.sentence }} />}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {current?.answers.map((el, i) => (
+                        <button
+                            key={i}
+                            disabled={disableButtons}
+                            onClick={() => handleAnswer(current, i)}
+                            style={{
+                                marginTop: 20, padding: 20, background: i === rightAnswer ? '#96be25' : (i === wrongAnswer ? '#be4d25': '#bee0ec'),
+                            }}
+                        >
+                            {el}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+export async function getServerSideProps(context) {
+    const randomQuiz = shuffle(quiz);
+    return { props: { randomQuiz } };
 }
