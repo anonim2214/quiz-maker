@@ -175,6 +175,13 @@ export default [
         rightAnswerIndex: 0,
     },
     {
+        word: 'to stand',
+        sentence: 'My sister can\'t stand looking after my kids.',
+        translate: 'стоять',
+        answers: ['Gerund', 'Infinitive', 'Both'],
+        rightAnswerIndex: 0,
+    },
+    {
         word: 'to suggest',
         sentence: 'She suggested going to a movie.',
         translate: 'предлагать',
